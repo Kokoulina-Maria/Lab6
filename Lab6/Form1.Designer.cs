@@ -40,6 +40,7 @@
             this.canvas.Size = new System.Drawing.Size(959, 496);
             this.canvas.TabIndex = 0;
             this.canvas.TabStop = false;
+            this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
             // 
             // Form1
             // 

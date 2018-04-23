@@ -24,6 +24,8 @@ namespace Lab6
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         Thread thread = null;
 
+        static List<Image> mapBitmaps = new List<Image>();
+
         private object syncObj = new object(); // For locking...
         private bool paused = false;
         private static Mutex mut = new Mutex();
@@ -31,12 +33,24 @@ namespace Lab6
         public Form1()
         {
             InitializeComponent();
+            LoadBitmaps();
             this.Width = xLim * gap;
             this.Height = yLim * gap;
             game = new Game();
             CancellationToken token = tokenSource.Token;
             Monitor.Enter(syncObj);
             RefreshLoop(token);
+        }
+
+
+        private void LoadBitmaps()
+        {
+            mapBitmaps.Add(Image.FromFile("Images/Sprites/ground.jpg")); // Background
+            mapBitmaps.Add(Image.FromFile("Images/Sprites/enemy.png")); // Enemy
+            mapBitmaps.Add(Image.FromFile("Images/Sprites/enemy.png")); // Player
+            mapBitmaps.Add(Image.FromFile("Images/Sprites/bomb.png")); // Bomb
+            mapBitmaps.Add(Image.FromFile("Images/Sprites/border.jpg")); // Rock
+            mapBitmaps.Add(Image.FromFile("Images/Sprites/fire.jpg")); // Explosion
         }
 
         private void Pause()
@@ -72,18 +86,17 @@ namespace Lab6
             }
         }
 
-        private void Canvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
+        private void canvas_Paint(object sender, PaintEventArgs e)
         {
-            //args.DrawingSession.DrawText("wehfuwe", 100, 100, Colors.Black);
             if (game.Map != null && mapBitmaps.Count > 0)
             {
-                DrawMap(args.DrawingSession);
-                DrawEnemies(args.DrawingSession);
-                DrawPlayer(args.DrawingSession);
+                DrawMap(e.Graphics);
+                DrawEnemies(e.Graphics);
+                DrawPlayer(e.Graphics);
             }
         }
 
-        public void DrawMap(CanvasDrawingSession drawing)
+        public void DrawMap(Graphics drawing)
         {
             for (int row = 0; row < yLim; row++)
                 for (int col = 0; col < xLim; col++)
@@ -94,14 +107,14 @@ namespace Lab6
                 }
         }
 
-        public void DrawEnemies(CanvasDrawingSession drawing)
+        public void DrawEnemies(Graphics drawing)
         {
             foreach (Enemy enemy in game.Enemies)
                 if (enemy.IsAlive)
                     drawing.DrawImage(mapBitmaps[(int)Images.Enemy], new Rectangle(enemy.Position.X, enemy.Position.Y, gap, gap));
         }
 
-        public void DrawPlayer(CanvasDrawingSession drawing)
+        public void DrawPlayer(Graphics drawing)
         {
             Player player = game.Player;
             if (player.IsAlive)

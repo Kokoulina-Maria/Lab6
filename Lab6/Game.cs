@@ -55,7 +55,7 @@ namespace Lab6
             clsBox.Add(new Point(1, -1));
             clsBox.Add(new Point(-1, 1));
 
-            var t = Task.Run(() => ReadMapAsync(map));
+            //var t = Task.Run(() => ReadMapAsync(map));
             enemies.Add(new Enemy(new Point(300, 300)));
             enemies.Add(new Enemy(new Point(200, 300)));
             enemies.Add(new Enemy(new Point(500, 250)));
@@ -157,36 +157,6 @@ namespace Lab6
                  player.Y + Game.PlayerOffsetY >= yObj && player.Y + Game.PlayerOffsetY <= yObj + objOffset))
                 return true;
             return false;
-        }
-
-        public async Task ReadMapAsync(int[,] map)
-        {
-            try
-            {
-                StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-                StorageFile sampleFile = await storageFolder.GetFileAsync("map.txt");
-                string input = await FileIO.ReadTextAsync(sampleFile);
-                input = input.Replace("\t", "");
-
-                int i = 0, j = 0;
-                int[,] result = new int[x, y];
-                foreach (var row in input.Split('\n'))
-                {
-                    j = 0;
-                    foreach (var col in row.Trim().Split(' '))
-                    {
-                        result[j, i] = int.Parse(col.Trim());
-                        j++;
-                    }
-                    i++;
-                }
-                map = result;
-            }
-            catch (Exception e)
-            {
-                MessageDialog md = new MessageDialog(e.Message);
-                await md.ShowAsync();
-            }
         }
 
         private void UpdateBombs()
