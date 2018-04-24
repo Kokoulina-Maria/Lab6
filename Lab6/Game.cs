@@ -24,7 +24,7 @@ namespace Lab6
         public int[,] Map { get { return map; } }
         public Player Player { get { return player; } }
 
-        static int[,] map ={{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+        int[,] testMap ={{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
                             {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
                             {4, 0, 4, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
                             {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
@@ -34,6 +34,8 @@ namespace Lab6
                             {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
                             {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
                             {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4} };
+
+        static int[,] map;
 
         Player player = new Player(new Point(250, 200));
         List<Enemy> enemies = new List<Enemy>();
@@ -48,7 +50,8 @@ namespace Lab6
 
         public Game()
         {
-            for (int i = 0; i < 5; i++)
+            map = testMap;
+            for (int i = 0; i < 10; i++)
             {
                 Enemy e = new Enemy(new Point(300, 300), r);
                 enemies.Add(e);

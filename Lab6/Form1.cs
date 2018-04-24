@@ -25,7 +25,7 @@ namespace Lab6
 
         static List<Image> mapBitmaps = new List<Image>();
 
-        private object syncObj = new object(); // For locking...
+        //private object syncObj = new object(); // For locking...
         private bool paused = false;
         //private static Mutex mut = new Mutex();
 
@@ -39,7 +39,7 @@ namespace Lab6
             this.Height = yLim * gap;
             game = new Game();
             CancellationToken token = tokenSource.Token;
-            Monitor.Enter(syncObj);
+            //Monitor.Enter(syncObj);
             refreshThread = new Thread(RefreshLoop);
             refreshThread.Start();
         }
