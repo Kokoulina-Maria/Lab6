@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 
@@ -13,6 +14,9 @@ namespace Lab6
         public List<Bomb> Bombs { get { return bombs; } }
         List<Bomb> bombs = new List<Bomb>();
         Directions direction = Directions.Stand;
+
+        Thread playerThread;
+
         Player()
         {
         }
@@ -26,7 +30,9 @@ namespace Lab6
         private void Init()
         {
             step = 10;
-            Move();
+            playerThread = new Thread(Move);
+            playerThread.Priority = ThreadPriority.Highest;
+            playerThread.Start();
         }
 
         public bool PlantBomb()
@@ -39,14 +45,13 @@ namespace Lab6
             }
             catch
             {
-                bombs.Add(new Bomb(10, position));
+                bombs.Add(new Bomb(15, position));
                 return true;
             }
-
             return false;
         }
 
-        async Task Move()
+        void Move()
         {
             while (true)
             {
@@ -71,7 +76,7 @@ namespace Lab6
                     default:
                         break;
                 }
-                await Task.Delay(100);
+                Thread.Sleep(100);
             }
         }
 

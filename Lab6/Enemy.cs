@@ -10,12 +10,13 @@ namespace Lab6
 {
    public class Enemy : Mob
     {
-        Random r = new Random();
+        Random r;
 
-        int direction;
+        int direction = 1;
 
-        Enemy()
+        Enemy(Random r)
         {
+            this.r = r;
             Init();
         }
 
@@ -25,8 +26,9 @@ namespace Lab6
             GenerateDirection();
         }
 
-        public Enemy(Point position)
+        public Enemy(Point position, Random r)
         {
+            this.r = r;
             this.position = position;
             Init();
         }

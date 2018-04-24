@@ -22,7 +22,6 @@ namespace Lab6
         public static int PlayerOffsetY { get { return playerOffsetY; } }
 
         public int[,] Map { get { return map; } }
-        public List<Enemy> Enemies { get { return enemies; } }
         public Player Player { get { return player; } }
 
         static int[,] map ={{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
@@ -36,48 +35,75 @@ namespace Lab6
                             {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
                             {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4} };
 
-        static List<Point> clsBox= new List<Point>();
-
         Player player = new Player(new Point(250, 200));
         List<Enemy> enemies = new List<Enemy>();
-        static int x = 23, y = 10;
 
         List<Task> tasks = new List<Task>();
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        Thread gameThread;
+        List<Thread> enemiesThreads = new List<Thread>();
+        public List<Enemy> Enemies { get { return enemies; } }
+
+        Random r = new Random();
+
         public Game()
         {
-            clsBox.Add(new Point(0, 1));
-            clsBox.Add(new Point(1, 0));
-            clsBox.Add(new Point(1, 1));
-            clsBox.Add(new Point(0, -1));
-            clsBox.Add(new Point(-1, 0));
-            clsBox.Add(new Point(-1, -1));
-            clsBox.Add(new Point(1, -1));
-            clsBox.Add(new Point(-1, 1));
+            for (int i = 0; i < 50; i++)
+            {
+                Enemy e = new Enemy(new Point(300, 300), r);
+                enemies.Add(e);
+                enemiesThreads.Add(new Thread(() => UpdateEnemy(e)));
+                enemiesThreads.Last().Start();
+            }
 
-            //var t = Task.Run(() => ReadMapAsync(map));
-            enemies.Add(new Enemy(new Point(300, 300)));
-            enemies.Add(new Enemy(new Point(200, 300)));
-            enemies.Add(new Enemy(new Point(500, 250)));
-            CancellationToken token = tokenSource.Token;
-            GameLoop(token);
+            //foreach (Enemy e in enemies)
+                        
+            gameThread = new Thread(GameLoop);
+            gameThread.Priority = ThreadPriority.AboveNormal;
+            gameThread.Start();
         }
 
         public void Exit()
         {
-            tokenSource.Cancel();
+            gameThread.Abort();
+            foreach (Thread t in enemiesThreads)
+                t.Abort();
         }
 
-        async Task GameLoop(CancellationToken token)
+        void UpdateEnemy(Enemy enemy)
+        {//синхронизация
+            while (enemy.IsAlive)//пока враг живой
+            {
+                lock (map) { }//проверяем, не занят ли массив
+                Monitor.Enter(map);//занимаем массив
+                enemy.Move();//двигаемся по нему
+                Monitor.Exit(map);//освобождаем массив
+                Thread.Sleep(200);
+            }
+        }
+
+        public void Pause()
+        {
+            foreach (Thread t in enemiesThreads)
+                t.Suspend();
+            gameThread.Suspend();
+        }
+
+        public void Resume()
+        {
+            foreach (Thread t in enemiesThreads)
+                t.Resume();
+            gameThread.Resume();
+        }
+
+        void GameLoop()
         {
             while (true)
             {
-                if (token.IsCancellationRequested)
-                    break;
-                UpdateEnemiesMoves();
+                //UpdateEnemiesMoves();
                 UpdateBombs();
                 UpdateCollisions();
-                await Task.Delay(200);
+                Thread.Sleep(200);
             }
         }
 
@@ -165,14 +191,14 @@ namespace Lab6
                 if (!bomb.IsUsed && bomb.Explosion)
                 {
                     bomb.IsUsed = true;
-                    BombExplosion(bomb);
+                    new Thread(() => BombExplosion(bomb)).Start();
                 }
         }
 
-        async Task BombExplosion(Bomb bomb)
+        void BombExplosion(Bomb bomb)
         {
             SetExplosion((int)Images.Explosion, bomb);
-            await Task.Delay(1000);
+            Thread.Sleep(1000);
             SetExplosion((int)Images.Background, bomb);
         }
 

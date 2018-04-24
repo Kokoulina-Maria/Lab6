@@ -22,13 +22,14 @@ namespace Lab6
         static int playerOffsetY = 25;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Thread thread = null;
 
         static List<Image> mapBitmaps = new List<Image>();
 
         private object syncObj = new object(); // For locking...
         private bool paused = false;
         private static Mutex mut = new Mutex();
+
+        Thread refreshThread;
 
         public Form1()
         {
@@ -39,7 +40,8 @@ namespace Lab6
             game = new Game();
             CancellationToken token = tokenSource.Token;
             Monitor.Enter(syncObj);
-            RefreshLoop(token);
+            refreshThread = new Thread(RefreshLoop);
+            refreshThread.Start();
         }
 
 
@@ -55,11 +57,15 @@ namespace Lab6
 
         private void Pause()
         {
-            if (paused == false)
+            if (!paused)
             {
-                Monitor.Enter(syncObj);
+                refreshThread.Suspend();
+                game.Pause();
+                //Monitor.Enter(syncObj);
                 paused = true;
             }
+            else
+                Resume();
         }
 
         private void Resume()
@@ -67,22 +73,20 @@ namespace Lab6
             if (paused)
             {
                 paused = false;
-                Monitor.Exit(syncObj);
+                refreshThread.Resume();
+                game.Resume();
+                //Monitor.Exit(syncObj);
             }
         }
 
         // Drawing
-        async Task RefreshLoop(CancellationToken token)
+        void RefreshLoop()
         {
-            thread = Thread.CurrentThread;
-            thread.Name = "Refresh";
             while (true)
             {
-                lock (syncObj) { }
-                if (token.IsCancellationRequested)
-                    break;
+                //lock (syncObj) { }
                 canvas.Invalidate();
-                await Task.Delay(100);
+                Thread.Sleep(100);
             }
         }
 
@@ -168,6 +172,12 @@ namespace Lab6
                     game.Player.Stop(Directions.Down);
                     break;
             }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            refreshThread.Abort();
+            game.Exit();
         }
 
         /// <summary>

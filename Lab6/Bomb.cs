@@ -17,7 +17,8 @@ namespace Lab6
         public Point Position { get; set; }
 
         int timer;
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        Thread tickTread;
 
         public Bomb(int timer, Point position)
         {
@@ -26,31 +27,28 @@ namespace Lab6
             Position = position;
             IsUsed = false;
             Radius = 3;
-            
-            CancellationToken token = tokenSource.Token;
-            Tick(token);
+            tickTread = new Thread(Tick);
+            tickTread.Start();
         }
 
-        async Task Tick(CancellationToken token)
+        void Tick()
         {
             while (true)
             {
-                if (token.IsCancellationRequested)
-                    break;
                 timer -= 1;
                 if (timer <= 0)
                 {
                     Boom();
                     break;
                 }
-                await Task.Delay(200);
+                Thread.Sleep(200);
             }
         }
 
         void Boom()
         {
             Explosion = true;
-            tokenSource.Cancel();
+            tickTread.Abort();
         }
 
     }
