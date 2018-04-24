@@ -22,7 +22,7 @@ namespace Lab6
         public bool dead = false;
         public bool IsAlive { get { return !dead; } }
 
-        public void Death()
+        virtual public void Death()
         {
             dead = true;
         }

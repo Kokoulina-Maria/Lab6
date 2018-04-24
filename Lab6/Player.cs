@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Windows.Foundation;
 
 namespace Lab6
 {
@@ -53,7 +49,7 @@ namespace Lab6
 
         void Move()
         {
-            while (true)
+            while (IsAlive)
             {
                 switch (direction)
                 {

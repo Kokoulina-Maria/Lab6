@@ -48,16 +48,14 @@ namespace Lab6
 
         public Game()
         {
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Enemy e = new Enemy(new Point(300, 300), r);
                 enemies.Add(e);
                 enemiesThreads.Add(new Thread(() => UpdateEnemy(e)));
                 enemiesThreads.Last().Start();
             }
-
-            //foreach (Enemy e in enemies)
-                        
+            
             gameThread = new Thread(GameLoop);
             gameThread.Priority = ThreadPriority.AboveNormal;
             gameThread.Start();
@@ -65,13 +63,14 @@ namespace Lab6
 
         public void Exit()
         {
+            foreach (Enemy e in enemies)
+                e.dead = true;
+            //player.Death();
             gameThread.Abort();
-            foreach (Thread t in enemiesThreads)
-                t.Abort();
         }
 
         void UpdateEnemy(Enemy enemy)
-        {//синхронизация
+        {   //синхронизация
             while (enemy.IsAlive)//пока враг живой
             {
                 lock (map) { }//проверяем, не занят ли массив
@@ -229,12 +228,18 @@ namespace Lab6
             foreach (Enemy enemy in enemies)
             {
                 if (EnemyCollision(enemy))
+                {
                     player.Death();
+                    Exit();
+                }
                 if (map[PosToCoordinate(enemy.Position.Y), PosToCoordinate(enemy.Position.X)] == (int)Images.Explosion)
                     enemy.Death();
             }
             if (map[PosToCoordinate(player.Position.Y), PosToCoordinate(player.Position.X)] == (int)Images.Explosion)
+            {
                 player.Death();
+                Exit();
+            }
         }
 
         bool EnemyCollision(Enemy enemy)

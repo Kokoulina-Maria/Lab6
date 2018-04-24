@@ -27,7 +27,7 @@ namespace Lab6
 
         private object syncObj = new object(); // For locking...
         private bool paused = false;
-        private static Mutex mut = new Mutex();
+        //private static Mutex mut = new Mutex();
 
         Thread refreshThread;
 
@@ -43,7 +43,6 @@ namespace Lab6
             refreshThread = new Thread(RefreshLoop);
             refreshThread.Start();
         }
-
 
         private void LoadBitmaps()
         {
@@ -61,7 +60,6 @@ namespace Lab6
             {
                 refreshThread.Suspend();
                 game.Pause();
-                //Monitor.Enter(syncObj);
                 paused = true;
             }
             else
@@ -75,7 +73,6 @@ namespace Lab6
                 paused = false;
                 refreshThread.Resume();
                 game.Resume();
-                //Monitor.Exit(syncObj);
             }
         }
 
@@ -84,7 +81,6 @@ namespace Lab6
         {
             while (true)
             {
-                //lock (syncObj) { }
                 canvas.Invalidate();
                 Thread.Sleep(100);
             }
@@ -178,6 +174,13 @@ namespace Lab6
         {
             refreshThread.Abort();
             game.Exit();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+            if (game != null)
+                game.Exit();
+            game = new Game();
         }
 
         /// <summary>
